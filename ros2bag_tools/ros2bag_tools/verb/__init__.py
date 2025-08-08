@@ -26,9 +26,14 @@ from ros2bag_tools.reader import FilteredReader
 from rosbag2_py import ConverterOptions
 from rosbag2_py import get_registered_readers
 from rosbag2_py import get_registered_writers
+from rosbag2_py import get_registered_compressors
 from rosbag2_py import Info
 from rosbag2_py import SequentialWriter
+from rosbag2_py import SequentialCompressionWriter
+from rosbag2_py import CompressionMode
+from rosbag2_py import CompressionOptions
 from rosbag2_py import StorageOptions
+
 
 
 def get_reader_options(args):
@@ -90,6 +95,18 @@ class FilterVerb(VerbExtension):
             default='cdr',
             help='rmw serialization format in which the messages are saved, defaults to "cdr"',
         )
+        parser.add_argument(
+            '--compression-format',
+            default='none',
+            choices=get_registered_compressors(),
+            help='compression format to be used for the output bag, defaults to "none"',
+        )
+        parser.add_argument(
+            '--compression-mode',
+            default='MESSAGE',
+            choices=['MESSAGE', 'FILE'],
+            help='compression mode to be used for the output bag, defaults to "MESSAGE"',
+        )
         parser.add_argument('--progress', action='store_true', help='show progress bar')
         self._filter.add_arguments(parser)
         self._filter.set_logger(self._logger)
@@ -125,7 +142,14 @@ class FilterVerb(VerbExtension):
                     metadata, self._filter.output_size_factor(metadata)
                 )
 
-        writer = SequentialWriter()
+        if args.compression_format == 'none':
+            writer = SequentialWriter()
+        else:
+            compression_options = CompressionOptions(
+                compression_format=args.compression_format,
+                compression_mode=CompressionMode[args.compression_mode],
+            )
+            writer = SequentialCompressionWriter(compression_options)
         args_out_bag = vars(args).copy()
         args_out_bag['storage'] = args.out_storage
         args_out_bag['bag_path'] = uri
