@@ -23,17 +23,16 @@ from ros2bag_tools.logging import getLogger
 from ros2bag_tools.progress import ProgressTracker
 from ros2bag_tools.reader import FilteredReader
 
-from rosbag2_py import ConverterOptions
-from rosbag2_py import get_registered_readers
-from rosbag2_py import get_registered_writers
-from rosbag2_py import get_registered_compressors
-from rosbag2_py import Info
-from rosbag2_py import SequentialWriter
-from rosbag2_py import SequentialCompressionWriter
 from rosbag2_py import CompressionMode
 from rosbag2_py import CompressionOptions
+from rosbag2_py import ConverterOptions
+from rosbag2_py import get_registered_compressors
+from rosbag2_py import get_registered_readers
+from rosbag2_py import get_registered_writers
+from rosbag2_py import Info
+from rosbag2_py import SequentialCompressionWriter
+from rosbag2_py import SequentialWriter
 from rosbag2_py import StorageOptions
-
 
 
 def get_reader_options(args):
