@@ -16,6 +16,7 @@ from rclpy.serialization import serialize_message
 
 from ros2bag_tools.filter import FilterExtension
 from ros2bag_tools.filter import TopicRequest
+from ros2bag_tools.topics import copy_metadata
 
 from rosbag2_py import TopicMetadata
 
@@ -56,14 +57,14 @@ class AddFilter(FilterExtension):
     def requested_topics(self):
         return [(TopicRequest.REQUIRED, self._args.align_to)]
 
-    def filter_topic(self, topic_metadata):
+    def filter_topic(self, topic_metadata: TopicMetadata):
         if topic_metadata.name == self._args.align_to:
             try:
                 self._aligned_msg_module = get_message(topic_metadata.type)
             except (AttributeError, ModuleNotFoundError, ValueError):
                 raise RuntimeError('--align-to message type is invalid')
-        new_metadata = TopicMetadata(
-            name=self._args.topic, type=self._args.type, serialization_format='cdr')
+        new_metadata = copy_metadata(topic_metadata, name=self._args.topic, type=self._args.type)
+
         return [topic_metadata, new_metadata]
 
     def filter_msg(self, msg):

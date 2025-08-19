@@ -15,10 +15,10 @@
 """Create test bag files."""
 from diagnostic_msgs.msg import KeyValue
 from rclpy.serialization import serialize_message
+from ros2bag_tools.topics import create_metadata
 from rosbag2_py import ConverterOptions
 from rosbag2_py import SequentialWriter
 from rosbag2_py import StorageOptions
-from rosbag2_py import TopicMetadata
 from sensor_msgs.msg import Range
 
 
@@ -30,7 +30,7 @@ def create_range_bag(path):
         output_serialization_format='cdr')
     writer.open(storage_options, converter_options)
 
-    topic = TopicMetadata('/range', 'sensor_msgs/msg/Range', 'cdr')
+    topic = create_metadata('/range', 'sensor_msgs/msg/Range', 'cdr')
     writer.create_topic(topic)
 
     msg = Range()
@@ -52,10 +52,10 @@ def create_multi_topic_bag(path):
         output_serialization_format='cdr')
     writer.open(storage_options, converter_options)
 
-    topic = TopicMetadata('/range', 'sensor_msgs/msg/Range', 'cdr')
+    topic = create_metadata('/range', 'sensor_msgs/msg/Range', 'cdr')
     writer.create_topic(topic)
 
-    topic = TopicMetadata('/diagnostics', 'diagnostic_msgs/msg/KeyValue', 'cdr')
+    topic = create_metadata('/diagnostics', 'diagnostic_msgs/msg/KeyValue', 'cdr')
     writer.create_topic(topic)
 
     msg = Range()

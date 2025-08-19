@@ -1,4 +1,4 @@
-# Copyright 2022 AIT Austrian Institute of Technology
+# Copyright 2025 AIT Austrian Institute of Technology
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

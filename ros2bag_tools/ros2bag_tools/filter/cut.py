@@ -33,8 +33,7 @@ from ros2bag_tools.time import is_same_day
 from ros2bag_tools.time import metadelta_to_timedelta
 from ros2bag_tools.time import metatime_to_datetime
 from ros2bag_tools.time import ros_to_datetime_utc
-
-import yaml
+from ros2bag_tools.topics import is_any_durability_policy
 
 
 def compute_timespan(start, duration, end, bags_start_time: datetime, bags_end_time: datetime):
@@ -75,8 +74,9 @@ class CutFilter(FilterExtension):
         self._duration_arg = None
         self._transient_local_policy = None
         self._transient_local_policy_arg = None
-        self._topic_qos_durability_dict = {}
+        self._topic_qos_any_transient_dict = {}
         self._deserializer = TopicDeserializer()
+        self._transient_topic_cache_dict = {}
 
     def add_arguments(self, parser):
         self._start_arg = parser.add_argument(
@@ -148,11 +148,9 @@ class CutFilter(FilterExtension):
         self._transient_local_policy = args.transient_local_policy
         for metadata in metadatas:
             for topic in metadata.topics_with_message_count:
-                durability = QoSDurabilityPolicy.SYSTEM_DEFAULT
-                if topic.topic_metadata.offered_qos_profiles.strip():
-                    durability = yaml.safe_load(topic.topic_metadata.offered_qos_profiles)[
-                        0]['durability']
-                self._topic_qos_durability_dict[topic.topic_metadata.name] = durability
+                self._topic_qos_any_transient_dict[topic.topic_metadata.name] = \
+                    is_any_durability_policy(topic.topic_metadata,
+                                             QoSDurabilityPolicy.TRANSIENT_LOCAL)
 
     def output_size_factor(self, metadata):
         start = metatime_to_datetime(metadata.starting_time).astimezone(timezone.utc)
@@ -167,7 +165,7 @@ class CutFilter(FilterExtension):
         return min(1, max(0, (end - start) / duration))
 
     def filter_topic(self, topic_metadata):
-        if (self._topic_qos_durability_dict[topic_metadata.name]
+        if (self._topic_qos_any_transient_dict[topic_metadata.name]
                 == QoSDurabilityPolicy.TRANSIENT_LOCAL
                 and self._transient_local_policy == 'snap'):
             self._deserializer.add_topic(topic_metadata)
@@ -181,7 +179,7 @@ class CutFilter(FilterExtension):
         #   timestamp to something else than in the bag data
         # * the underlying storage implementation does not support storage time filters
         if t < self._start_time.nanoseconds:
-            if self._topic_qos_durability_dict[topic] == QoSDurabilityPolicy.TRANSIENT_LOCAL:
+            if self._topic_qos_any_transient_dict[topic]:
                 if self._transient_local_policy == 'drop':
                     return FilterResult.DROP_MESSAGE
                 elif self._transient_local_policy == 'snap':

@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import argparse
+from contextlib import closing
+from contextlib import nullcontext
 from datetime import datetime
 import os
 
@@ -149,22 +151,25 @@ class FilterVerb(VerbExtension):
                 compression_mode=CompressionMode[args.compression_mode],
             )
             writer = SequentialCompressionWriter(compression_options)
-        args_out_bag = vars(args).copy()
-        args_out_bag['storage'] = args.out_storage
-        args_out_bag['bag_path'] = uri
-        out_storage_options, out_converter_options = get_reader_options(
-            argparse.Namespace(**args_out_bag)
-        )
-        writer.open(out_storage_options, out_converter_options)
+        writer_ctx = closing(writer) if hasattr(writer, 'close') else nullcontext(writer)
 
-        for topic in reader.get_all_topics_and_types():
-            writer.create_topic(topic)
+        with writer_ctx as writer:
+            args_out_bag = vars(args).copy()
+            args_out_bag['storage'] = args.out_storage
+            args_out_bag['bag_path'] = uri
+            out_storage_options, out_converter_options = get_reader_options(
+                argparse.Namespace(**args_out_bag)
+            )
+            writer.open(out_storage_options, out_converter_options)
 
-        for item in reader:
-            if progress:
-                prog_perc = progress.update(item[0])
-                progress.print_update(prog_perc)
-            writer.write(*item)
+            for topic in reader.get_all_topics_and_types():
+                writer.create_topic(topic)
+
+            for item in reader:
+                if progress:
+                    prog_perc = progress.update(item[0])
+                    progress.print_update(prog_perc)
+                writer.write(*item)
 
         if progress:
             progress.print_finish()
