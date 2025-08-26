@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from contextlib import closing
-from typing import Sequence, Tuple
+
+from typing import Sequence
+from typing import Tuple
 
 from diagnostic_msgs.msg import DiagnosticArray
 from example_interfaces.msg import String

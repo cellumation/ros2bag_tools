@@ -1,4 +1,4 @@
-# Copyright 2017 Open Source Robotics Foundation, Inc.
+# Copyright 2019 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@ import pytest
 @pytest.mark.flake8
 @pytest.mark.linter
 def test_flake8():
-    pkg_prefix = str(Path(__file__).parents[1])
-    rc, errors = main_with_errors(argv=[pkg_prefix])
+    pkg_prefix = Path(__file__).resolve().parents[2]
+    config_file = pkg_prefix / '.flake8'
+    rc, errors = main_with_errors(argv=['--config', str(config_file), str(pkg_prefix)])
     assert rc == 0, \
         'Found %d code style errors / warnings:\n' % len(errors) + \
         '\n'.join(errors)

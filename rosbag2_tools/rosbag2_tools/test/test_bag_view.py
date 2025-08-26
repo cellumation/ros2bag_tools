@@ -17,7 +17,8 @@ from rosbag2_tools.bag_view import BagView
 from sensor_msgs.msg import Range
 
 
-pkg_prefix = Path(__file__).parents[1]
+module_prefix = Path(__file__).resolve().parents[1]
+pkg_prefix = module_prefix.parent
 
 
 def test_bag_view(tmp_range_bag):

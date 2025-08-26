@@ -6,7 +6,7 @@ package_name = 'ros2bag_tools'
 setup(
     name=package_name,
     version='0.1.0',
-    packages=find_packages(exclude=['test']),
+    packages=find_packages(exclude=['**.test']),
     data_files=[
         ('share/' + package_name, ['package.xml']),
         ('share/ament_index/resource_index/packages',
@@ -16,8 +16,8 @@ setup(
     zip_safe=True,
     author='Marcel Zeilinger',
     author_email='marcel.zeilinger@ait.ac.at',
-    maintainer='Marcel Zeilinger',
-    maintainer_email='marcel.zeilinger@ait.ac.at',
+    maintainer='Markus Hofstaetter',
+    maintainer_email='markus.hofstaetter@ait.ac.at',
     keywords=[],
     classifiers=[
         'Environment :: Console',

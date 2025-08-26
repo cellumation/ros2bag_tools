@@ -6,3 +6,8 @@ log
 .devcontainer
 *.pyc
 __pycache__
+.pytest_cache
+*.zsh_history
+*.bash_history
+*.zcom*
+*.bag

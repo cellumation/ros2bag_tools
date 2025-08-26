@@ -20,7 +20,8 @@ from rosbag2_py import StorageFilter
 from rosbag2_tools.bag_view import BagView
 from rosbag2_tools.data_frame import read_data_frames
 
-pkg_prefix = Path(__file__).parents[1]
+module_prefix = Path(__file__).resolve().parents[1]
+pkg_prefix = module_prefix.parent
 
 
 def test_data_frame_range(tmp_range_bag):

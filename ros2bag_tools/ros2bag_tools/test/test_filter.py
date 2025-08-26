@@ -46,7 +46,8 @@ from std_msgs.msg import String as RosString
 from .logutils import capture_at_level
 
 
-pkg_prefix = Path(__file__).parents[1]
+module_prefix = Path(__file__).resolve().parents[1]
+pkg_prefix = module_prefix.parent
 
 
 def read_metadata(path: str):
@@ -61,7 +62,7 @@ def test_add_filter():
     test_filter.add_arguments(parser)
     args = parser.parse_args(
         ['-t', '/data', '--type', 'example_interfaces/msg/String', '-v',
-         str(pkg_prefix/'test'/'data.yaml'),
+         str(module_prefix/'test'/'data.yaml'),
          '--align-to', '/align'])
     test_filter.set_args(None, args)
 
@@ -149,7 +150,7 @@ def test_replace_filter():
 
     parser = argparse.ArgumentParser('replace')
     test_filter.add_arguments(parser)
-    args = parser.parse_args(['-t', '/data', '-v', str(pkg_prefix/'test'/'data.yaml')])
+    args = parser.parse_args(['-t', '/data', '-v', str(module_prefix/'test'/'data.yaml')])
     test_filter.set_args(None, args)
 
     string_msg = String()
