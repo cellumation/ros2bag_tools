@@ -180,9 +180,7 @@ class SyncFilter(FilterExtension):
 
         result = self._msgs
         self._msgs = []
-        # TODO(hofstaetterm): Produce result per filter to total num syncs.
-        #
-        # If no message drops occurred then num syncs and num signaled are identical.
+
         return result
 
     def flush(self):

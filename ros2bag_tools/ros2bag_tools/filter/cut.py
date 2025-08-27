@@ -92,7 +92,7 @@ class CutFilter(FilterExtension):
             '--transient-local-policy',
             default='snap',
             choices=['snap', 'keep', 'drop'],
-            help='Specifiy how to handle messages with transient_local durability with timestamps '
+            help='Specify how to handle messages with transient_local durability with timestamps '
             'prior to the start cut time, defaults to "snap". '
             '"snap": set timestamp of prior transient_local messages to the start time '
             'of the new bag. '

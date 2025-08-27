@@ -11,3 +11,4 @@ __pycache__
 *.bash_history
 *.zcom*
 *.bag
+.env
