@@ -131,3 +131,7 @@ dfs['/range']
 * Export of images: `cv.imencode` is being used to recompress the image. So the same input format implications apply. This also means implies that color images (RGB) when not input as BGR you will experience a color swap
 in the output. Force an output encoding if this is not desired.
 * Export of CompressedImage images: If the format is encoded like in image_transport_plugins or as cv_bridge encodes it and the desired output format is the same the image will not be recompressed when `passthrough` is selected as the desired output encoding or the stored encoding matches, in this case the data content is just written to the output file. But decoding is done using `cv_bridge` if necessary thus the same restrictions apply.
+
+## Development
+
+For kickstarting your development see the provided template workspace. [ws_ros2bag_tools](https://github.com/AIT-Assistive-Autonomous-Systems/ws_ros2bag_tools).
