@@ -14,13 +14,13 @@
 
 from pathlib import Path
 
-from ament_pep257.main import main
+from ament_copyright.main import main
 import pytest
 
 
+@pytest.mark.copyright
 @pytest.mark.linter
-@pytest.mark.pep257
-def test_pep257():
-    pkg_prefix = str(Path(__file__).parents[1])
+def test_copyright():
+    pkg_prefix = str(Path(__file__).resolve().parents[2])
     rc = main(argv=[pkg_prefix, 'test'])
-    assert rc == 0, 'Found code style errors / warnings'
+    assert rc == 0, 'Found errors'

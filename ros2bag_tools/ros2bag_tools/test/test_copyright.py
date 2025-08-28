@@ -1,4 +1,4 @@
-# Copyright 2021 AIT Austrian Institute of Technology GmbH
+# Copyright 2015 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
 from pathlib import Path
 
-from ros2bag_tools.filter.composite import CompositeFilter
+from ament_copyright.main import main
+import pytest
 
-pkg_prefix = Path(__file__).parents[1]
 
-
-def test_composite_filter():
-    test_filter = CompositeFilter()
-
-    parser = argparse.ArgumentParser('composite')
-    test_filter.add_arguments(parser)
-    args = parser.parse_args(['-c', str(pkg_prefix/'test'/'composite.config')])
-
-    test_filter.set_args([], args)
-    assert (len(test_filter.filter_msg(('/data', None, 0))) == 0)
+@pytest.mark.copyright
+@pytest.mark.linter
+def test_copyright():
+    pkg_prefix = str(Path(__file__).resolve().parents[2])
+    rc = main(argv=[pkg_prefix, 'test'])
+    assert rc == 0, 'Found errors'

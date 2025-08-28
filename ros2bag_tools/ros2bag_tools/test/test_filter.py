@@ -1,4 +1,4 @@
-# Copyright 2021 AIT Austrian Institute of Technology GmbH
+# Copyright 2025 AIT Austrian Institute of Technology GmbH
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,17 +36,18 @@ from ros2bag_tools.filter.replace import ReplaceFilter
 from ros2bag_tools.filter.restamp import RestampFilter
 from ros2bag_tools.filter.sync import SyncFilter
 from ros2bag_tools.reader import FilteredReader
+from ros2bag_tools.topics import create_metadata
 from ros2bag_tools.verb.export import ExportVerb
 
 from rosbag2_py import Info
-from rosbag2_py import TopicMetadata
 
 from std_msgs.msg import String as RosString
 
 from .logutils import capture_at_level
 
 
-pkg_prefix = Path(__file__).parents[1]
+module_prefix = Path(__file__).resolve().parents[1]
+pkg_prefix = module_prefix.parent
 
 
 def read_metadata(path: str):
@@ -61,12 +62,11 @@ def test_add_filter():
     test_filter.add_arguments(parser)
     args = parser.parse_args(
         ['-t', '/data', '--type', 'example_interfaces/msg/String', '-v',
-         str(pkg_prefix/'test'/'data.yaml'),
+         str(module_prefix/'test'/'data.yaml'),
          '--align-to', '/align'])
     test_filter.set_args(None, args)
 
-    topic_metadata = TopicMetadata(
-        '/align', 'example_interfaces/msg/String', 'cdr')
+    topic_metadata = create_metadata('/align', 'example_interfaces/msg/String')
     topics = test_filter.filter_topic(topic_metadata)
     assert (len(topics) == 2)
     assert (topics[0].name == '/align')
@@ -150,7 +150,7 @@ def test_replace_filter():
 
     parser = argparse.ArgumentParser('replace')
     test_filter.add_arguments(parser)
-    args = parser.parse_args(['-t', '/data', '-v', str(pkg_prefix/'test'/'data.yaml')])
+    args = parser.parse_args(['-t', '/data', '-v', str(module_prefix/'test'/'data.yaml')])
     test_filter.set_args(None, args)
 
     string_msg = String()
@@ -161,7 +161,7 @@ def test_replace_filter():
         # if topic hasn't been found, filter_msg fails with error
         test_filter.filter_msg(msg)
 
-    topic_metadata = TopicMetadata(
+    topic_metadata = create_metadata(
         '/data', 'example_interfaces/msg/String', 'cdr')
     assert (test_filter.filter_topic(topic_metadata) == topic_metadata)
     (topic, result_data, t) = test_filter.filter_msg(msg)
@@ -199,6 +199,22 @@ def test_cut_filter(tmp_string_bag):
     assert (test_filter.filter_msg(msg) == FilterResult.STOP_CURRENT_BAG)
 
 
+def test_cut_filter_transient(tmp_string_transient_bag):
+    test_filter = CutFilter()
+
+    parser = argparse.ArgumentParser('cut')
+    test_filter.add_arguments(parser)
+    args = parser.parse_args(['--duration', '0.5', '--transient-local-policy', 'keep'])
+    test_filter.set_args([read_metadata(tmp_string_transient_bag)], args)
+
+    string_msg = String()
+    string_msg.data = 'in'
+
+    # timestamp before bag start but transient
+    msg = ('/data', serialize_message(string_msg), 0)
+    assert (test_filter.filter_msg(msg) == msg)
+
+
 def test_cut_filter_args(tmp_day_time_bag):
     test_filter = CutFilter()
 
@@ -229,7 +245,7 @@ def test_reframe_filter():
     args = parser.parse_args(['-t', '/diagnostics', '--frame', 'frame1'])
     test_filter.set_args(None, args)
 
-    topic_metadata = TopicMetadata(
+    topic_metadata = create_metadata(
         '/diagnostics', 'diagnostic_msgs/msg/DiagnosticArray', 'cdr')
     assert (test_filter.filter_topic(topic_metadata) == topic_metadata)
 
@@ -253,7 +269,7 @@ def test_rename_filter():
     args = parser.parse_args(['-t', '/data', '--name', '/renamed'])
     test_filter.set_args(None, args)
 
-    topic_metadata = TopicMetadata(
+    topic_metadata = create_metadata(
         '/data', 'example_interfaces/msg/String', 'cdr')
     assert (test_filter.filter_topic(topic_metadata).name == '/renamed')
 
@@ -274,7 +290,7 @@ def test_restamp_filter(tmp_diagnostics_bag: Path):
     args = parser.parse_args([])
     test_filter.set_args([info.read_metadata(tmp_diagnostics_bag, '')], args)
 
-    topic_metadata = TopicMetadata(
+    topic_metadata = create_metadata(
         '/diagnostics', 'diagnostic_msgs/msg/DiagnosticArray', 'cdr')
     assert (test_filter.filter_topic(topic_metadata) == topic_metadata)
 
@@ -311,7 +327,7 @@ def test_restamp_filter(tmp_diagnostics_bag: Path):
     assert (msg_filtered.header.stamp.nanosec == 1)
 
     # No header tests
-    topic_metadata = TopicMetadata(
+    topic_metadata = create_metadata(
         '/string', 'std_msgs/msg/String', 'cdr')
     assert (test_filter.filter_topic(topic_metadata) == topic_metadata)
 
@@ -333,7 +349,7 @@ def test_sync_filter(tmp_synced_bag):
 
     reader = FilteredReader(bag_paths=[tmp_synced_bag], extension=test_filter)
 
-    topics = [TopicMetadata(topic, 'diagnostic_msgs/msg/DiagnosticArray', 'cdr')
+    topics = [create_metadata(topic, 'diagnostic_msgs/msg/DiagnosticArray', 'cdr')
               for topic in ['/sync0', '/sync1', '/offsync0']]
     for meta in topics:
         assert (test_filter.filter_topic(meta) == meta)
