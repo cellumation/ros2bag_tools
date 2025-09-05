@@ -134,4 +134,4 @@ in the output. Force an output encoding if this is not desired.
 
 ## Development
 
-For kickstarting your development see the provided template workspace. [ws_ros2bag_tools](https://github.com/AIT-Assistive-Autonomous-Systems/ws_ros2bag_tools).
+For kickstarting your development and installation see the provided template workspace. [ws_ros2bag_tools](https://github.com/AIT-Assistive-Autonomous-Systems/ws_ros2bag_tools).
